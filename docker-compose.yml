@@ -1,0 +1,10 @@
+version: '3.9'
+
+services:
+  fastapi-weather:
+    build:
+      dockerfile: Dockerfile
+    container_name: fastapi-weather-app
+    ports:
+      - "8000:8000"
+    restart: always
