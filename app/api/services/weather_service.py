@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import httpx
+from fastapi import HTTPException
 
 WEATHER_CODE_DESCRIPTIONS = {
     0: "Ясно",
@@ -21,14 +22,20 @@ WEATHER_CODE_DESCRIPTIONS = {
 }
 
 async def get_daily_weather(lat: float, lon: float):
+    today = datetime.utcnow().date()
+    end_day = today + timedelta(days=6)
+
     async with httpx.AsyncClient() as client:
+        # Прогноз по дням
         response_daily = await client.get(
             "https://api.open-meteo.com/v1/forecast",
             params={
                 "latitude": lat,
                 "longitude": lon,
-                "daily": "temperature_2m_max,precipitation_sum,weathercode",
-                "timezone": "auto"
+                "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode",
+                "timezone": "auto",
+                "start_date": today.isoformat(),
+                "end_date": end_day.isoformat()
             }
         )
 
@@ -42,22 +49,36 @@ async def get_daily_weather(lat: float, lon: float):
             }
         )
 
-        data_hourly = response_hourly.json()
+    if response_daily.status_code != 200 or response_hourly.status_code != 200:
+        raise HTTPException(status_code=503, detail="Сервис погоды временно недоступен")
+
+    data_daily = response_daily.json()
+    data_hourly = response_hourly.json()
+
+    try:
         now = datetime.now().hour
-        data_daily = response_daily.json()
-
         current_temp = data_hourly["hourly"]["temperature_2m"][now]
-        max_temp = data_daily["daily"]["temperature_2m_max"][0]
-        weather_code = data_daily["daily"]["weathercode"][0]
-        precipitation = data_daily["daily"]["precipitation_sum"][0]
-        time = data_daily["daily"]["time"][0]
 
-        verdict = WEATHER_CODE_DESCRIPTIONS.get(weather_code, "Неизвестно")
+        temps_max = data_daily["daily"]["temperature_2m_max"]
+        temps_min = data_daily["daily"]["temperature_2m_min"]
+        codes = data_daily["daily"]["weathercode"]
+        precs = data_daily["daily"]["precipitation_sum"]
+        times = data_daily["daily"]["time"]
+    except KeyError:
+        raise HTTPException(status_code=500, detail="Ошибка при разборе погодных данных")
 
-        return {
-            "current_temperature": current_temp,
-            "max_temperature": max_temp,
-            "precipitation": precipitation,
-            "verdict": verdict,
-            "time": time,
-        }
+    forecast = []
+    for i in range(len(times)):
+        verdict = WEATHER_CODE_DESCRIPTIONS.get(codes[i], "Неизвестно")
+        forecast.append({
+            "date": times[i],
+            "temperature_max": temps_max[i],
+            "temperature_min": temps_min[i],
+            "precipitation": precs[i],
+            "verdict": verdict
+        })
+
+    return {
+        "current_temperature": current_temp,
+        "forecast": forecast
+    }

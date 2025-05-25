@@ -15,7 +15,7 @@ async def get_coordinates(city: str):
 
         data = response.json()
         if not data:
-            raise HTTPException(status_code=404, detail="Город не найден")
+            raise HTTPException(status_code=404, detail="Данный город не найден")
         try:
             lat = float(data[0]["lat"])
             lon = float(data[0]["lon"])
