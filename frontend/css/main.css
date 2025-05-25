@@ -1,0 +1,133 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(-45deg, #3498db, #6dd5fa, #ffffff);
+  background-size: 400% 400%;
+  animation: gradientAnimation 30s ease infinite;
+  font-family: "Montserrat", sans-serif;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 5rem;
+}
+
+.search-section {
+  display: flex;
+  gap: 10px;
+}
+.search-section input {
+  padding: 10px;
+  font-size: 16px;
+  width: 250px;
+}
+.search-section button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.weather-section {
+  margin-top: 2rem;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.weather-section.hidden {
+  display: none;
+}
+.weather-section .weather-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 150px;
+  text-align: center;
+}
+.weather-section .weather-card img {
+  width: 50px;
+  height: 50px;
+}
+.weather-section .weather-card .temperature {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+.weather-section .weather-card .description {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.current-temp {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  text-align: center;
+  color: #333;
+  transform: translateY(-10px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.current-temp.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hidden {
+  display: none;
+}
+
+.weather-card {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInCard 0.6s forwards;
+  animation-delay: 0.2s;
+  transition: all 0.3s ease-in-out;
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 0.5rem;
+}
+
+.day-date {
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.day-name {
+  font-weight: bold;
+}
+
+.date {
+  color: #666;
+  font-size: 0.9em;
+}
+
+@keyframes fadeInTemp {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes fadeInCard {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
